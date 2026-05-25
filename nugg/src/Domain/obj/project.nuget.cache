@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "M0P8SRZrd7k=",
+  "success": true,
+  "projectFilePath": "/Users/mathias/dev/hugg/nugg/src/Domain/Domain.csproj",
+  "expectedPackageFiles": [
+    "/Users/mathias/.nuget/packages/fluentresults/3.15.2/fluentresults.3.15.2.nupkg.sha512",
+    "/Users/mathias/.nuget/packages/microsoft.extensions.logging.abstractions/6.0.1/microsoft.extensions.logging.abstractions.6.0.1.nupkg.sha512",
+    "/Users/mathias/.nuget/packages/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}
