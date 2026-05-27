@@ -1,4 +1,4 @@
-package com.example.flugg
+package com.example.hugg
 
 import io.flutter.embedding.android.FlutterActivity
 
