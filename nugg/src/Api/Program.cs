@@ -1,12 +1,22 @@
 using Api.Authorization;
-using Api.Routes.Weather;
-using Api.Swagger;
+using Api.Routes.BooksApi;
 using Application;
 using FluentValidation;
 using Infrastructure;
 using Serilog;
 
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            name: myAllowSpecificOrigins,
+            policy => { policy.WithOrigins("*"); }
+        );
+    }
+);
 
 // Add other layers
 builder.AddApplication();
@@ -15,7 +25,6 @@ builder.AddInfrastructure();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => options.AddCustomSwaggerGenOptions());
 
 // Add JWT-token authentication + our custom authorization policies
 builder.Services.AddAuthentication().AddJwtBearer();
@@ -36,27 +45,23 @@ builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks()
     .AddInfrastructureHealthChecks();
 
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
+
+app.UseCors(myAllowSpecificOrigins);
 
 // Produce a ProblemDetails payload for exceptions
 app.UseExceptionHandler();
-
-// Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI(options => options.AddCustomSwaggerUIOptions(app.Environment.IsDevelopment()));
 
 app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Redirect to swagger
-app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
-
 app.MapHealthChecks("/healthz");
 
-app.MapWeatherUserGroup()
-   .MapWeatherAdminGroup();
+app.MapBooksApiGroup();
 
 app.Run();
 
