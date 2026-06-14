@@ -9,15 +9,15 @@ public static class TestContainersHostBuilder
     {
         if (!builder.Environment.IsValidTestContainersEnvironment())
             throw new InvalidOperationException(
-                $"{nameof(AddTestContainers)} should only be called in non-live environments like Development. Current environment: {builder.Environment.EnvironmentName}");
+                $"{nameof(AddTestContainers)} should only be called in non-live environments like Development. Current environment: {builder.Environment.EnvironmentName}"
+            );
 
         builder.Services.AddHostedService<TestContainersService>();
-        
-        builder.Services.Configure<InfrastructureConfig>(
-            opts =>
-            {
-                opts.ConnectionString = TestContainersFactory.DefaultDbConnectionString;
-            });
+
+        builder.Services.Configure<InfrastructureConfig>(opts =>
+        {
+            opts.ConnectionString = TestContainersFactory.DefaultDbConnectionString;
+        });
     }
 
     private static bool IsValidTestContainersEnvironment(this IHostEnvironment environment)

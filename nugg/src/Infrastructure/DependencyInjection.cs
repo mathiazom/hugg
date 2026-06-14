@@ -1,4 +1,6 @@
 ﻿using Application;
+using Application.BooksApi;
+using Infrastructure.GoogleBooks;
 using Infrastructure.TestContainers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,15 +19,19 @@ public static class DependencyInjection
         {
             builder.AddTestContainers();
         }
-        
+
         builder.Services.AddDbContext<DatabaseContext>();
 
         builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<DatabaseContext>());
 
+        builder.Services.AddScoped<IBooksApiService, GoogleBooksApiService>();
+
         return builder;
     }
-    
-    public static IHealthChecksBuilder AddInfrastructureHealthChecks(this IHealthChecksBuilder healthChecksBuilder)
+
+    public static IHealthChecksBuilder AddInfrastructureHealthChecks(
+        this IHealthChecksBuilder healthChecksBuilder
+    )
     {
         healthChecksBuilder.AddDbContextCheck<DatabaseContext>();
 

@@ -7,7 +7,7 @@ namespace Infrastructure.TestContainers;
 public record TestContainersConfig
 {
     public const string SectionName = "TestContainers";
-    
+
     public required bool Enabled { get; set; }
     public required bool RunMigrations { get; set; }
     public required bool SeedDatabase { get; set; }
@@ -15,9 +15,14 @@ public record TestContainersConfig
 
 internal static class TestContainersConfigExtensions
 {
-    internal static IHostApplicationBuilder AddTestContainersConfig(this IHostApplicationBuilder builder, out TestContainersConfig currentConfig)
+    internal static IHostApplicationBuilder AddTestContainersConfig(
+        this IHostApplicationBuilder builder,
+        out TestContainersConfig currentConfig
+    )
     {
-        var configurationSection = builder.Configuration.GetSection(TestContainersConfig.SectionName);
+        var configurationSection = builder.Configuration.GetSection(
+            TestContainersConfig.SectionName
+        );
         builder.Services.Configure<TestContainersConfig>(configurationSection);
         currentConfig = configurationSection.Get<TestContainersConfig>()!;
         return builder;

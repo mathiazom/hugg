@@ -157,7 +157,7 @@ class Album {
 
 Future<Album> fetchAlbum(String isbn) async {
   final response = await http.get(
-    Uri.parse('http://localhost:5260/books-api?isbn=$isbn'),
+    Uri.parse('https://nugg.biku.be/books-api?isbn=$isbn'),
     headers: {'Accept': 'application/json'},
   );
 

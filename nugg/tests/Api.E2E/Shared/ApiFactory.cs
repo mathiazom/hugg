@@ -22,7 +22,10 @@ namespace Api.E2E.Shared;
 /// <summary>
 ///     Used to create a test server for the API and setup + migrate a TestContainer-database.
 /// </summary>
-public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, ICollectionFixture<ApiFactory>
+public class ApiFactory
+    : WebApplicationFactory<Program>,
+        IAsyncLifetime,
+        ICollectionFixture<ApiFactory>
 {
     private DbConnection _dbConnection = default!;
     private Respawner _respawner = default!;
@@ -36,36 +39,47 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         {
             Enabled = true,
             RunMigrations = true,
-            SeedDatabase = false
+            SeedDatabase = false,
         };
-        
-        TestContainersFactory = new TestContainersFactory(config, NullLogger<TestContainersFactory>.Instance);
-        await TestContainersFactory.Start(overrides: new TestContainersOverrides
-        {
-            DatabaseTestContainerName = "testcontainers-api-e2e-tests-db",
-            HostPort = 51235
-        });
-        
-        DbContext = new DatabaseContext(Options.Create(new InfrastructureConfig
-        {
-            ConnectionString = TestContainersFactory.CurrentConnectionString ?? throw new UnreachableException(),
-            EnableSensitiveDataLogging = true
-        }));
-        
+
+        TestContainersFactory = new TestContainersFactory(
+            config,
+            NullLogger<TestContainersFactory>.Instance
+        );
+        await TestContainersFactory.Start(
+            overrides: new TestContainersOverrides
+            {
+                DatabaseTestContainerName = "testcontainers-api-e2e-tests-db",
+                HostPort = 51235,
+            }
+        );
+
+        DbContext = new DatabaseContext(
+            Options.Create(
+                new InfrastructureConfig
+                {
+                    ConnectionString =
+                        TestContainersFactory.CurrentConnectionString
+                        ?? throw new UnreachableException(),
+                    EnableSensitiveDataLogging = true,
+                }
+            )
+        );
+
         HttpClient = CreateClient();
 
         _dbConnection = new NpgsqlConnection(TestContainersFactory.CurrentConnectionString);
         await _dbConnection.OpenAsync();
 
-        _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"], // add your own schemas here if not using public
-            TablesToIgnore =
-            [
-                new Table("public", "__EFMigrationsHistory"),
-            ]
-        });
+        _respawner = await Respawner.CreateAsync(
+            _dbConnection,
+            new RespawnerOptions
+            {
+                DbAdapter = DbAdapter.Postgres,
+                SchemasToInclude = ["public"], // add your own schemas here if not using public
+                TablesToIgnore = [new Table("public", "__EFMigrationsHistory")],
+            }
+        );
     }
 
     public new Task DisposeAsync()
@@ -73,7 +87,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
         HttpClient.Dispose();
         return TestContainersFactory.Stop();
     }
-    
+
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureHostConfiguration(config => config.AddJsonFile("appsettings.Test.json"));
@@ -88,18 +102,23 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime, IColle
 
             services.Configure<InfrastructureConfig>(opts =>
             {
-                opts.ConnectionString = TestContainersFactory.CurrentConnectionString ?? throw new UnreachableException();
+                opts.ConnectionString =
+                    TestContainersFactory.CurrentConnectionString
+                    ?? throw new UnreachableException();
             });
-            
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, opts =>
-            {
-                var openIdConnectConfiguration = new OpenIdConnectConfiguration
+
+            services.Configure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme,
+                opts =>
                 {
-                    Issuer = MockJwtTokensHelper.Issuer
-                };
-                openIdConnectConfiguration.SigningKeys.Add(MockJwtTokensHelper.SecurityKey);
-                opts.Configuration = openIdConnectConfiguration;
-            });
+                    var openIdConnectConfiguration = new OpenIdConnectConfiguration
+                    {
+                        Issuer = MockJwtTokensHelper.Issuer,
+                    };
+                    openIdConnectConfiguration.SigningKeys.Add(MockJwtTokensHelper.SecurityKey);
+                    opts.Configuration = openIdConnectConfiguration;
+                }
+            );
         });
     }
 

@@ -8,22 +8,26 @@ namespace Infrastructure.TestContainers;
 public class TestContainersService(IServiceProvider serviceProvider) : IHostedService
 {
     private TestContainersFactory? _testContainers;
-    
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using var scope = serviceProvider.CreateScope();
 
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<TestContainersService>>();
-        
+
         try
         {
             logger.LogInformation("Running test containers service");
-            
-            var config = scope.ServiceProvider.GetRequiredService<IOptions<TestContainersConfig>>().Value;
+
+            var config = scope
+                .ServiceProvider.GetRequiredService<IOptions<TestContainersConfig>>()
+                .Value;
 
             if (config.Enabled)
             {
-                var testContainersLogger = scope.ServiceProvider.GetRequiredService<ILogger<TestContainersFactory>>();
+                var testContainersLogger = scope.ServiceProvider.GetRequiredService<
+                    ILogger<TestContainersFactory>
+                >();
                 _testContainers = new TestContainersFactory(config, testContainersLogger);
 
                 await _testContainers.Start(cancellationToken);

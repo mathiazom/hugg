@@ -5,7 +5,10 @@ using Testcontainers.PostgreSql;
 
 namespace Infrastructure.TestContainers;
 
-public class TestContainersFactory(TestContainersConfig config, ILogger<TestContainersFactory> logger)
+public class TestContainersFactory(
+    TestContainersConfig config,
+    ILogger<TestContainersFactory> logger
+)
 {
     private const string DatabaseName = "test";
     private const string Username = "test";
@@ -14,19 +17,23 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
 
     public static readonly string DefaultDbConnectionString =
         $"Host=127.0.0.1;Port={HostPort};Database={DatabaseName};Username={Username};Password={Password}";
-    
+
     private PostgreSqlContainer? _postgreSqlContainer;
 
     public string? CurrentConnectionString => _postgreSqlContainer?.GetConnectionString();
 
-    public async Task Start(CancellationToken cancellationToken = default, TestContainersOverrides? overrides = null)
+    public async Task Start(
+        CancellationToken cancellationToken = default,
+        TestContainersOverrides? overrides = null
+    )
     {
         try
         {
             if (config.Enabled)
             {
                 var hostPort = overrides?.HostPort ?? HostPort;
-                var databaseTestContainerName = overrides?.DatabaseTestContainerName ?? "testcontainers-api-template-db";
+                var databaseTestContainerName =
+                    overrides?.DatabaseTestContainerName ?? "testcontainers-api-template-db";
 
                 logger.LogInformation("Starting TestContainers");
                 _postgreSqlContainer = new PostgreSqlBuilder()
@@ -39,37 +46,42 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
                     .Build();
 
                 await _postgreSqlContainer.StartAsync(cancellationToken);
-                
-                var options = Options.Create(new InfrastructureConfig
-                {
-                    ConnectionString = _postgreSqlContainer.GetConnectionString(),
-                    EnableSensitiveDataLogging = true
-                });
-                
+
+                var options = Options.Create(
+                    new InfrastructureConfig
+                    {
+                        ConnectionString = _postgreSqlContainer.GetConnectionString(),
+                        EnableSensitiveDataLogging = true,
+                    }
+                );
+
                 await using var context = new DatabaseContext(options);
-                
+
                 if (config.RunMigrations)
                 {
                     var retries = 0;
-                    while (!await context.Database.CanConnectAsync(cancellationToken) && retries < 10)
+                    while (
+                        !await context.Database.CanConnectAsync(cancellationToken) && retries < 10
+                    )
                     {
                         retries++;
                         await Task.Delay(1000, cancellationToken);
                     }
 
                     logger.LogInformation("Running database migrations");
-                    await context.Database.MigrateAsync(cancellationToken); 
+                    await context.Database.MigrateAsync(cancellationToken);
                 }
-                
+
                 if (config.SeedDatabase)
                 {
                     logger.LogInformation("Seeding database with simulated data");
-                    
+
                     var simulatedDataBuilder = new SimulatedDataBuilder();
                     await simulatedDataBuilder.WithAll().Save(context, cancellationToken);
                 }
             }
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             logger.LogError(ex, "Error starting TestContainers");
         }
@@ -80,7 +92,6 @@ public class TestContainersFactory(TestContainersConfig config, ILogger<TestCont
         var stopTask = _postgreSqlContainer?.StopAsync(cancellationToken) ?? Task.CompletedTask;
         return stopTask;
     }
-
 }
 
 public class TestContainersOverrides

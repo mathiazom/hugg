@@ -31,13 +31,21 @@ public static class MockJwtTokensHelper
 
     private static string GenerateJwtToken(params Claim[] claims)
     {
-        return s_tokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null,
-            DateTime.UtcNow.AddMinutes(20), SigningCredentials));
+        return s_tokenHandler.WriteToken(
+            new JwtSecurityToken(
+                Issuer,
+                Audience,
+                claims,
+                null,
+                DateTime.UtcNow.AddMinutes(20),
+                SigningCredentials
+            )
+        );
     }
 
     public static string GenerateJwtToken(TokenOptions options)
     {
-        string[] scopes = [..options.Scopes];
+        string[] scopes = [.. options.Scopes];
         var claims = scopes.Select(val => new Claim("scope", val)).ToList();
         claims.Add(new Claim("client_id", options.ClientId));
         var jwt = GenerateJwtToken(claims.ToArray());
@@ -47,9 +55,7 @@ public static class MockJwtTokensHelper
 
     public struct TokenOptions
     {
-        public TokenOptions()
-        {
-        }
+        public TokenOptions() { }
 
         public string ClientId { get; set; } = "client-id";
         public string[] Scopes { get; set; } = [];

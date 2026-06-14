@@ -18,18 +18,14 @@ public class SimulatedDataBuilder
     }
 
     private ForecastOptions? _forecastsOptions = null;
-    
 
     public SimulatedDataBuilder WithForecasts(int count)
     {
-        _forecastsOptions = new()
-        {
-            Count = count
-        };
-        
+        _forecastsOptions = new() { Count = count };
+
         return this;
     }
-    
+
     public SimulatedDataBuilder WithAll()
     {
         return WithForecasts(10);
@@ -44,13 +40,13 @@ public class SimulatedDataBuilder
             forecasts = Forecasts.Generate(_forecastsOptions.Count);
         }
 
-        return new()
-        {
-            Forecasts = forecasts
-        };
+        return new() { Forecasts = forecasts };
     }
-    
-    public Task<SavedData> Save(DatabaseContext context, CancellationToken cancellationToken = default)
+
+    public Task<SavedData> Save(
+        DatabaseContext context,
+        CancellationToken cancellationToken = default
+    )
     {
         return Generate().Save(context, cancellationToken);
     }
@@ -59,8 +55,11 @@ public class SimulatedDataBuilder
     {
         private bool _isSaved;
         public required List<Forecast> Forecasts { get; init; }
-        
-        public async Task<SavedData> Save(DatabaseContext context, CancellationToken cancellationToken = default)
+
+        public async Task<SavedData> Save(
+            DatabaseContext context,
+            CancellationToken cancellationToken = default
+        )
         {
             if (!_isSaved)
             {
@@ -68,17 +67,14 @@ public class SimulatedDataBuilder
 
                 await context.SaveChangesAsync(cancellationToken);
                 context.ChangeTracker.Clear();
-                
+
                 _isSaved = true;
             }
 
-            return new()
-            {
-                Forecasts = Forecasts
-            };
+            return new() { Forecasts = Forecasts };
         }
     }
-    
+
     public class SavedData
     {
         public List<Forecast> Forecasts { get; init; }

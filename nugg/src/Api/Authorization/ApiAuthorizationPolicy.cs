@@ -20,16 +20,19 @@ public static class AuthorizationOptionsExtensions
 {
     public static void AddAuthorizationPolicies(this AuthorizationOptions options)
     {
-        options.AddPolicy(AuthorizationPolicy.User,
-            policy => policy
-                .RequireClaim("scope", Scopes.Read, Scopes.Admin));
+        options.AddPolicy(
+            AuthorizationPolicy.User,
+            policy => policy.RequireClaim("scope", Scopes.Read, Scopes.Admin)
+        );
 
-        options.AddPolicy(AuthorizationPolicy.Write,
-            policy => policy
-                .RequireClaim("scope", Scopes.Write, Scopes.Admin));
-        
-        options.AddPolicy(AuthorizationPolicy.Admin,
-            policy => policy
-                .RequireClaim("scope", Scopes.Admin));
+        options.AddPolicy(
+            AuthorizationPolicy.Write,
+            policy => policy.RequireClaim("scope", Scopes.Write, Scopes.Admin)
+        );
+
+        options.AddPolicy(
+            AuthorizationPolicy.Admin,
+            policy => policy.RequireClaim("scope", Scopes.Admin)
+        );
     }
 }

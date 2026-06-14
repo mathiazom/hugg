@@ -8,8 +8,7 @@ public static class DependencyInjection
     public static IHostApplicationBuilder AddApplication(this IHostApplicationBuilder builder)
     {
         builder.Services.AddMediatR(cfg =>
-            cfg
-                .RegisterServicesFromAssemblyContaining(typeof(DependencyInjection))
+            cfg.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection))
                 .AddOpenBehavior(typeof(LoggingBehavior<,>))
         );
 

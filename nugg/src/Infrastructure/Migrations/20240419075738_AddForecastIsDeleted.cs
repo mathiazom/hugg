@@ -15,15 +15,14 @@ namespace Infrastructure.Migrations
                 table: "Forecasts",
                 type: "boolean",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsDeleted",
-                table: "Forecasts");
+            migrationBuilder.DropColumn(name: "IsDeleted", table: "Forecasts");
         }
     }
 }
