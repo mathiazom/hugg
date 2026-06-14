@@ -1,6 +1,6 @@
 namespace Infrastructure.GoogleBooks;
 
-public record BookSearchResponse(List<BookSearchResponse.ItemsResponse> Items)
+public record BookSearchResponse(int TotalItems, List<BookSearchResponse.ItemsResponse> Items)
 {
     public record ItemsResponse(ItemsResponse.VolumeInfoResponse VolumeInfo)
     {
