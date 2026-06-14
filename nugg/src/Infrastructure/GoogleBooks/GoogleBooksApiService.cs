@@ -51,13 +51,13 @@ public class GoogleBooksApiService(
 
         var firstResult = data.Items.First();
         var volumeInfo = firstResult.VolumeInfo;
+        var isbnOut = volumeInfo
+            .IndustryIdentifiers.OrderByDescending(x => x.Type == "ISBN_13")
+            .First()
+            .Identifier;
 
         return Result.Ok(
-            new BookSearchResultDto(
-                volumeInfo.Title,
-                volumeInfo.IndustryIdentifiers.First().Identifier,
-                volumeInfo.ImageLinks.Thumbnail
-            )
+            new BookSearchResultDto(volumeInfo.Title, isbnOut, volumeInfo.ImageLinks.Thumbnail)
         );
     }
 
